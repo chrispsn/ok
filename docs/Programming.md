@@ -186,8 +186,6 @@ If an algorithm can be completed in a known number of steps, it is well suited t
 
 When these "irregular" problems come up, the above verbs should come to mind. Do any of them offer a solution, or allow you to break the problem into pieces which are each regular?
 
-TODO keep going from here
-
 Otherwise, we consider the special forms of `over` (`/`) and `scan` (`\`):
 
 - `f/ x` (where `f` is a monadic function) iteratively applies `f` to `x` until the value stops changing or the initial value of `x` is revisited. Also known as _Fixed Point_.
@@ -248,10 +246,9 @@ If you need more context, you can split the list appropriately yourself. To prov
 	 9 10 22
 	 10 22 3)
 
-TODO no window in K7?
-K6 introduces `window` (`'`), which makes this much simpler:
+Or use the built-in `window` (`':`), which makes this much simpler:
 
-	 3'4 8 9 10 22 3
+	 3':4 8 9 10 22 3
 	(4 8 9
 	 8 9 10
 	 9 10 22
