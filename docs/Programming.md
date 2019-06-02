@@ -7,22 +7,23 @@ Filtering
 ---------
 You've built a list of values and you want to extract a subset of them that have some property based on a predicate monad `P`. Use `where` (`&`) and then index into the original list to gather the subset:
 
-	P: {~~3!x}    / not multiples of 3
+	P: {~~3 mod x}    / not multiples of 3
 	{x@&P'x}@!20  / filter out matches
 	
 If your predicate consists of atomic primitives, you can avoid the `each` (`'`). If your input list is a 0-indexed enumeration, you can avoid the need to index the original list. Thus, the above example could be simplified as follows:
 
 	{&P x}@!20    / get rid of unnecessary indexing and each
-	{&~~3!x}@!20  / inline predicate
-	&~~3!!20      / eliminate lambda
+	{&~~3 mod x}@!20  / inline predicate
+	&~~3 mod !20      / eliminate lambda
 
 The use of `where` to solve this kind of problem is an extremely important concept.
 
-K5 adds a special overload to `take` (`#`) which simplifies this pattern, performing essentially `x@&y'x`:
+An overload to `take` (`#`) simplifies this pattern, performing essentially `x@&y'x`:
 
 	  (2!)#!8
 	1 3 5 7
 	
+	TODO
 	  {x~|x}#("racecar";"nope";"bob")
 	("racecar"
 	 "bob")
@@ -44,6 +45,7 @@ Note that similar generalizations exist for `over` (`/`) and `scan` (`\`):
 	  {x,y,z}/[1;2 3;4 5]
 	1 2 4 3 5
 
+	TODO NYI error
 	  {x,y,z}\[1;2 3;4 5]
 	(1
 	 1 2 4
@@ -53,25 +55,25 @@ Always consider whether `flip` can make it easier to calculate "with the grain" 
 
 Alternatively, it might be easy to construct our desired lists in place provided an index:
 
-	V1: {2!x}          / alternating parity
+	V1: {2 mod x}      / alternating parity
 	V2: {65+x}         / ascii alphabet characters
-	D:  {`c$y+x*32}    / make an upper- or lowercase character
+	D: {`c$y+x*32}    / make an upper- or lowercase character TODO removed second space after colon
 	{D[V1 x;V2 x]}'!26
 
 Of course, sometimes we can do the whole operation in parallel and combine the construction of the sequences:
 
-	  `c${65+x+32*2!x}@!26
+	  `c${65+x+32*2 mod x}@!26
 	"AbCdEfGhIjKlMnOpQrStUvWxYz"
 
 Conditionals and Alternatives
 -----------------------------
 K offers an equivalent to "if" statements in the form of the 3 or more argument version of `$`, sometimes called `cond` for its semantic similarity to the Lisp statement:
 
-	{$[2!x; x%2; 1+3*x]}
+	{$[2 mod x; x%2; 1+3*x]}
 
 This statement checks conditions one after another and falls through to the final case if none of the predicates succeeds. This behavior is useful in many situations. However, if you want to avoid using "cond", you can often replace it by constructing a list and indexing into it, provided each case has no side effects:
 
-	{(1+3*x; x%2)2!x}
+	{(1+3*x; x%2)2 mod x}
 	
 This is nicely general and if you augment the list by indexing it to replicate elements you can express complex logic based on a lookup table:
 
@@ -79,21 +81,21 @@ This is nicely general and if you augment the list by indexing it to replicate e
 
 Sometimes you need to apply a function to a subset of the items of a list. You can do this by using cond:
 
-	  {2!x}7 6 15 29 28 42
+	  {2 mod x}7 6 15 29 28 42
 	1 0 1 1 0 0
-	  {$[2!x; 100+x; x]}'7 6 15 29 28 42
+	  {$[2 mod x; 100+x; x]}'7 6 15 29 28 42
 	107 6 115 129 28 42
 
 Or you could index into a list of functions and apply them to the original list with each-dyad:
 
-	  {({x};100+)[2!x]@'x}7 6 15 29 28 42
+	  {({x};100+)[2 mod x]@'x}7 6 15 29 28 42
 	107 6 115 129 28 42
 
 Sometimes a situation which appears to require a conditional can actually be resolved by exploiting useful edge-cases of verbs and adverbs. For example, say you have a value which is either an atom or a list, and for some other purpose you must ensure it is made a list. Consider these approaches and decide for yourself which is clearer:
 
-	  {$[-1<@x;x;,x]} 1
+	  {$[x~*x;,x;x]} 1
 	,1
-	  {$[-1<@x;x;,x]} 1 2 3
+	  {$[x~*x;,x;x]} 1 2 3
 	1 2 3
 	  ,/,1
 	,1
@@ -138,6 +140,7 @@ If the order of results matters (such as if you are doing some kind of minimizin
 	 "AZ"
 	 "BZ")
 	 
+	 TODO crashes
 	  ,/+V1 D/:\:V2
 	("AX"
 	 "BX"
@@ -179,9 +182,11 @@ If an algorithm can be completed in a known number of steps, it is well suited t
 - `find` (dyadic `?`) locates the first instance of a value in a list via a linear search.
 - `except` (dyadic `^`) removes instances of an element from a list.
 - `group` (monadic `=`) collates the indices of matching elements of a list.
-- `split` (dyadic `\`) breaks a list at each instance of an element.
+- `split` (dyadic `\:`) breaks a list at each instance of an element.
 
 When these "irregular" problems come up, the above verbs should come to mind. Do any of them offer a solution, or allow you to break the problem into pieces which are each regular?
+
+TODO keep going from here
 
 Otherwise, we consider the special forms of `over` (`/`) and `scan` (`\`):
 
