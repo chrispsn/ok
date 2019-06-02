@@ -207,6 +207,7 @@ When using the "do...while" forms to implement nontrivial algorithms, it is comm
 
 You might find that `eval` (`.`) is useful for unpacking this tuple into separate arguments, making the loop body and predicate both shorter and easier to understand, especially if tuple elements are used in many places:
 
+TODO doesn't work
 	{{x<y}.x}{{(x*x;y*2)}.x}\(2;100)
 
 Sequential Processing
@@ -224,7 +225,7 @@ For example,
 	3 0 1 -4 1 0 2 -3
 
 	  %':1 3 4 2 1
-	1.0 3.0 1.333333 .5 .5
+	ø 3 1.333333 0.5 0.5
 
 	  ~~':3 3 4 0 1 1 3 0
 	1 0 1 1 1 0 1 1
@@ -247,6 +248,7 @@ If you need more context, you can split the list appropriately yourself. To prov
 	 9 10 22
 	 10 22 3)
 
+TODO no window in K7?
 K6 introduces `window` (`'`), which makes this much simpler:
 
 	 3'4 8 9 10 22 3
@@ -255,14 +257,14 @@ K6 introduces `window` (`'`), which makes this much simpler:
 	 9 10 22
 	 10 22 3)
 
-If you don't want these windows to overlap, `reshape` with a "greedy" `0N` is the ticket:
+If you don't want these windows to overlap, `reshape` with a "greedy" `Ø` is the ticket:
 
-	  0N 3#4 8 9 10 22 3 7 0 9
+	  Ø 3#4 8 9 10 22 3 7 0 9
 	(4 8 9
 	 10 22 3
 	 7 0 9)
 	
-	  0N 2#4 8 9 10 22 3 7 0
+	  Ø 2#4 8 9 10 22 3 7 0
 	(4 8
 	 9 10
 	 22 3
@@ -371,10 +373,10 @@ The indices of the three smallest elements of a list:
 
 Grading any list will produce a *permutation vector*- a list in which the numbers up to but not including the length of the original list each appear exactly once. Grading a random list is a handy way to produce random, uniformly distributed permutation vectors:
 
-	  <?5
+	  < rand 5
 	4 3 1 0 2
 
-	  <?5
+	  < rand 5
 	1 4 2 0 3
 
 Grading once produces a permutation vector which will sort the original list. Grading that vector again will produce a vector that will *unsort* a sorted list into the original list's relative configuration. This composition is sometimes called `ordinal`:
@@ -393,11 +395,11 @@ Grading once produces a permutation vector which will sort the original list. Gr
 
 Encode and Decode
 -----------------
-K5 introduced overloads for `/` and `\` called `encode` and `decode`, respectively. In older versions of K, similar operations were called `_vs` and `_sv`. These operators come from a long APL tradition, yet rarely have direct equivalents in the standard libraries of more conventional languages.
+K7 has overloads for `\:` and `/:` called `encode` or `sv`, and `decode` or `vs`, respectively. These operators come from a long APL tradition, yet rarely have direct equivalents in the standard libraries of more conventional languages.
 
 You can think of `decode` as a function for splitting a scalar right argument into digits in some base given by the left argument. Consider converting ascending numbers into binary:
 
-	  2 2 2\'!4
+	  2 2 2\:'!4
 	(0 0 0
 	 0 0 1
 	 0 1 0
@@ -405,18 +407,18 @@ You can think of `decode` as a function for splitting a scalar right argument in
 
 Or converting a decimal number into hexadecimal digits:
 
-	  16 16\179
+	  16 16\:179
 	11 3
 
-	 "0123456789ABCDEF"@16 16\179
+	 "0123456789ABCDEF"@16 16\:179
 	"B3"
 
 The `encode` operator is the inverse, converting digits in some arbitrary base into a decimal equivalent:
 
-	  2 2 2/1 0 1
+	  2 2 2/:1 0 1
 	5
 
-	  16 16/11 3
+	  16 16/:11 3
 	179
 
 Things get more interesting when you work with mixed bases. Many everyday counting systems like imperial units of measure and time use mixed bases. Consider converting 7 days, 4 hours and 37 minutes into raw minutes. There are 365 days in a year, 24 hours in a day and 60 minutes in an hour, so:
@@ -424,10 +426,10 @@ Things get more interesting when you work with mixed bases. Many everyday counti
 	  (7*24*60)+(4*60)+(37)
 	10357
 
-	  365 24 60/7 4 37
+	  365 24 60/:7 4 37
 	10357
 
-	  365 24 60\10357
+	  365 24 60\:10357
 	7 4 37
 
 Mixed-based decoding is one way to reproduce the effects of `odometer`:
@@ -435,7 +437,7 @@ Mixed-based decoding is one way to reproduce the effects of `odometer`:
 	  !*/2 3
 	0 1 2 3 4 5
 
-	 {x\'!*/x} 2 3
+	 {x\:'!*/x} 2 3
 	(0 0
 	 0 1
 	 0 2
