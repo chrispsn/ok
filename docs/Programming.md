@@ -1,5 +1,5 @@
-Programming in K
-================
+Programming in K9
+=================
 
 Array programming languages demand a very different approach to problem solving than garden-variety imperative languages. After you've memorized K's small vocabulary of primitive functions and learned about the wrinkles and shorthand of the syntax you may find that you understand the language, but still don't fully grasp how it can be applied. In this guide I will try to gather examples of problem solving techniques that I discover or find in existing programs, in the hopes that these ideas can help other beginners.
 
@@ -7,45 +7,44 @@ Filtering
 ---------
 You've built a list of values and you want to extract a subset of them that have some property based on a predicate monad `P`. Use `where` (`&`) and then index into the original list to gather the subset:
 
-	P: {~~3 mod x}    / not multiples of 3
-	{x@&P'x}@!20  / filter out matches
+	P:{~~3 mod x}     / not multiples of 3
+	{x@&P'x}@!20      / filter out matches
 	
 If your predicate consists of atomic primitives, you can avoid the `each` (`'`). If your input list is a 0-indexed enumeration, you can avoid the need to index the original list. Thus, the above example could be simplified as follows:
 
-	{&P x}@!20    / get rid of unnecessary indexing and each
+	{&P x}@!20        / get rid of unnecessary indexing and each
 	{&~~3 mod x}@!20  / inline predicate
 	&~~3 mod !20      / eliminate lambda
 
 The use of `where` to solve this kind of problem is an extremely important concept.
 
-An overload to `take` (`#`) simplifies this pattern, performing essentially `x@&y'x`:
+An overload to `take` (`#`) simplifies this pattern:
 
-	  (2!)#!8
+	 (3 mod)#!20
 	1 3 5 7
 	
-	TODO
-	  {x~|x}#("racecar";"nope";"bob")
-	("racecar"
-	 "bob")
+	 {x~'|'x}#("racecar";"nope";"bob")
+	racecar
+	bob    
 
 Zipping
 -------
 You have two lists and you want to map a function `D` over pairings of the elements of these lists. Use each-dyad:
 
-	V1 D'V2
+	V1 D' V2
 
 In the more general case, you can use the prefix form of `each`. This works for dyads, triads, tetrads, etc:
 
 	D'[V1;V2]                              / dyadic
 	T'[V1;V2;V3]                           / triadic
-	{[a;b;c;d] a,b,c,d}'[1 2;3 4;5 6;7 8]  / tetradic
+	{[a;b;c;d] a,b,c,d}'[1 2;3 4;5 6;7 8]  / tetradic TODO RANK ERROR
 
 Note that similar generalizations exist for `over` (`/`) and `scan` (`\`):
 
 	  {x,y,z}/[1;2 3;4 5]
 	1 2 4 3 5
 
-	TODO NYI error
+	TODO RANK ERROR
 	  {x,y,z}\[1;2 3;4 5]
 	(1
 	 1 2 4
@@ -57,8 +56,8 @@ Alternatively, it might be easy to construct our desired lists in place provided
 
 	V1: {2 mod x}      / alternating parity
 	V2: {65+x}         / ascii alphabet characters
-	D: {`c$y+x*32}    / make an upper- or lowercase character TODO removed second space after colon
-	{D[V1 x;V2 x]}'!26
+	D: {`c$y+x*32}     / make an upper- or lowercase character TODO removed second space after colon
+	{D[V1 x;V2 x]}'!26  / TODO segfault
 
 Of course, sometimes we can do the whole operation in parallel and combine the construction of the sequences:
 
@@ -79,16 +78,11 @@ This is nicely general and if you augment the list by indexing it to replicate e
 
 	{`A`B`C[1 0 0 1 2 1 0]x}
 
-Sometimes you need to apply a function to a subset of the items of a list. You can do this by using cond:
+Sometimes you need to apply a function to a subset of the items of a list. Amend (triadic `@`) can be useful:
 
-	  {2 mod x}7 6 15 29 28 42
+	 {2 mod x}7 6 15 29 28 42
 	1 0 1 1 0 0
-	  {$[2 mod x; 100+x; x]}'7 6 15 29 28 42
-	107 6 115 129 28 42
-
-Or you could index into a list of functions and apply them to the original list with each-dyad:
-
-	  {({x};100+)[2 mod x]@'x}7 6 15 29 28 42
+	 {@[x;&2 mod x;100+]}7 6 15 29 28 42
 	107 6 115 129 28 42
 
 Sometimes a situation which appears to require a conditional can actually be resolved by exploiting useful edge-cases of verbs and adverbs. For example, say you have a value which is either an atom or a list, and for some other purpose you must ensure it is made a list. Consider these approaches and decide for yourself which is clearer:
