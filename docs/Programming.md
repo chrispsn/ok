@@ -21,7 +21,7 @@ The use of `where` to solve this kind of problem is an extremely important conce
 An overload to `take` (`#`) simplifies this pattern:
 
 	 (3 mod)#!20
-	1 3 5 7
+	1 2 4 5 7 8 10 11 13 14 16 17 19
 	
 	 {x~'|'x}#("racecar";"nope";"bob")
 	racecar
@@ -54,14 +54,14 @@ Always consider whether `flip` can make it easier to calculate "with the grain" 
 
 Alternatively, it might be easy to construct our desired lists in place provided an index:
 
-	V1: {2 mod x}      / alternating parity
-	V2: {65+x}         / ascii alphabet characters
-	D: {`c$y+x*32}     / make an upper- or lowercase character TODO removed second space after colon
+	V1: 2 mod          / alternating parity
+	V2: 65+            / ascii alphabet characters
+	D: {`c$y+x*32}     / make an upper- or lowercase character TODO `c NYI
 	{D[V1 x;V2 x]}'!26  / TODO segfault
 
 Of course, sometimes we can do the whole operation in parallel and combine the construction of the sequences:
 
-	  `c${65+x+32*2 mod x}@!26
+	  `c{65+x+32*2 mod x}@!26
 	"AbCdEfGhIjKlMnOpQrStUvWxYz"
 
 Conditionals and Alternatives
@@ -113,7 +113,7 @@ You want to consider all combinations of two lists of elements via a dyad `D`. T
 
 	V1: "AB"
 	V2: "XYZ"
-	D:  {x,y}
+	D:  ,
 	,/V1 D/:\:V2
 	
 If the order of results matters (such as if you are doing some kind of minimizing search), reversing the order of the adverbs is equivalent to taking the `flip` of the results:
@@ -134,7 +134,6 @@ If the order of results matters (such as if you are doing some kind of minimizin
 	 "AZ"
 	 "BZ")
 	 
-	 TODO crashes
 	  ,/+V1 D/:\:V2
 	("AX"
 	 "BX"
